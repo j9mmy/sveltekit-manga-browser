@@ -1,0 +1,76 @@
+import { db } from "$lib/server/db";
+import { users_manga, users } from "$lib/server/db/schema";
+import { eq, and } from "drizzle-orm";
+import type { Actions, PageServerLoad } from "./$types";
+
+// prettier-ignore
+export const load = (async ({ params }) => {
+  const mangaId = parseInt(params.id);
+
+  // Selecting the first user from the database to simulate a logged-in user because no authentication is implemented
+  const [user] = await db.select({ id: users.id }).from(users).limit(1);
+  if (!user) console.warn("User was not found");
+
+  const [userManga] = await db
+    .select()
+    .from(users_manga)
+    .where(
+      and(
+        eq(users_manga.userId, user.id), 
+        eq(users_manga.mangaId, mangaId)
+      )
+    )
+    .limit(1);
+
+  return {
+    userManga
+  };
+}) satisfies PageServerLoad;
+
+// prettier-ignore
+export const actions = {
+  default: async ({ request }) => {
+    const formData = await request.formData();
+    console.log(formData);
+
+    // Selecting the first user from the database to simulate a logged-in user because no authentication is implemented
+    const [user] = await db.select({ id: users.id }).from(users).limit(1);
+    if (!user) throw new Error("User not found");
+
+    const mangaId = parseInt(formData.get("mangaId") as string);
+    const score = formData.get("score") ? parseInt(formData.get("score") as string) : null;
+    const status = 
+      formData.get("status") == ""
+        ? null 
+        : formData.get("status") as "planning" | "reading" | "completed" | "dropped";
+
+    if (!score && !status) {
+      await db
+        .delete(users_manga)
+        .where(
+          and(
+            eq(users_manga.userId, user.id),
+            eq(users_manga.mangaId, mangaId)
+          )
+        );
+      
+      return;
+    }
+
+    await db
+      .insert(users_manga)
+      .values({
+        userId: user.id,
+        mangaId,
+        status,
+        score
+      })
+      .onConflictDoUpdate({
+        target: [users_manga.userId, users_manga.mangaId],
+        set: {
+          status,
+          score
+        }
+      })
+  }
+} satisfies Actions;
