@@ -1,29 +1,30 @@
 <script lang="ts">
+  import { replaceState } from "$app/navigation";
+  import { page } from "$app/state";
+  import { searchManga } from "$lib/api/services/manga";
   import { Button } from "$lib/components/ui/button/index.ts";
   import { Input } from "$lib/components/ui/input/index.ts";
   import { Label } from "$lib/components/ui/label/index.ts";
   import * as Select from "$lib/components/ui/select/index.ts";
   import type { PageData } from "./$types";
-  import { queryParameters } from "sveltekit-search-params";
 
-  let { data }: { data: PageData } = $props();
+  let { data: pageData }: { data: PageData } = $props();
+  let data = $state(pageData);
   let search = $state(data.filters.search);
   let genre = $state(data.filters.genre);
   let sortBy = $state(data.filters.sortBy);
   let loading = $state(false);
 
-  const params = queryParameters({
-    title: true,
-    genre: true,
-    sortBy: true,
-  });
-
-  async function handleSubmit() {
+  async function handleSearch() {
     loading = true;
 
-    params.title = search;
-    params.genre = genre;
-    params.sortBy = sortBy;
+    data.manga = await searchManga({ search, genre, sortBy });
+
+    page.url.searchParams.set("title", search);
+    page.url.searchParams.set("genre", genre);
+    page.url.searchParams.set("sortBy", sortBy);
+
+    replaceState(page.url, page.state);
 
     loading = false;
   }
@@ -33,7 +34,7 @@
     genre = "All";
     sortBy = "Popularity";
 
-    handleSubmit();
+    handleSearch();
   }
 </script>
 
@@ -43,7 +44,7 @@
     class="grid gap-5 bg-background rounded"
     onsubmit={(e) => {
       e.preventDefault();
-      handleSubmit();
+      handleSearch();
     }}
   >
     <div class="grid gap-3">
@@ -112,7 +113,7 @@
   {:else}
     <div class="grid grid-cols-5 gap-2">
       {#if loading}
-        {#each Array(12)}
+        {#each Array(20)}
           <div
             class="animate-pulse bg-primary bg-opacity-25 rounded aspect-[2/3]"
           ></div>
@@ -125,7 +126,6 @@
           <img
             src={manga.coverImage.large}
             decoding="async"
-            loading="lazy"
             alt={manga.title.romaji}
             class="rounded object-cover aspect-[2/3] {loading ? 'hidden' : ''}"
           />
