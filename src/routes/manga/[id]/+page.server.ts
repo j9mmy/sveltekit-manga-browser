@@ -2,9 +2,10 @@ import { db } from "$lib/server/db";
 import { users_manga, users } from "$lib/server/db/schema";
 import { eq, and } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types";
+import { fail } from "@sveltejs/kit";
 
 // prettier-ignore
-export const load = (async ({ params }) => {
+export const load: PageServerLoad = (async ({ params }) => {
   const mangaId = parseInt(params.id);
 
   // Selecting the first user from the database to simulate a logged-in user because no authentication is implemented
@@ -35,12 +36,12 @@ export const actions = {
 
     // Selecting the first user from the database to simulate a logged-in user because no authentication is implemented
     const [user] = await db.select({ id: users.id }).from(users).limit(1);
-    if (!user) throw new Error("User not found");
+    if (!user) fail(404, { message: "User was not found" });
 
     const mangaId = parseInt(formData.get("mangaId") as string);
+    const title = formData.get("title") as string;
     const score = formData.get("score") ? parseInt(formData.get("score") as string) : null;
-    const status = 
-      formData.get("status") == ""
+    const status = formData.get("status") == ""
         ? null 
         : formData.get("status") as "planning" | "reading" | "completed" | "dropped";
 
@@ -62,6 +63,7 @@ export const actions = {
       .values({
         userId: user.id,
         mangaId,
+        title,
         status,
         score
       })
@@ -72,5 +74,7 @@ export const actions = {
           score
         }
       })
+    
+    return { success: true }
   }
 } satisfies Actions;
