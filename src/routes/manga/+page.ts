@@ -7,11 +7,16 @@ export const load: PageLoad = async ({ url, fetch }) => {
   const genre = url.searchParams.get("genre") || "All";
   const sortBy = url.searchParams.get("sortBy") || "Popularity";
 
-  const item = await searchMangaAndGenres({ search, genre, sortBy });
+  const promise = async () => {
+    let item = await searchMangaAndGenres({ search, genre, sortBy });
+    item.GenreCollection = item.GenreCollection.filter((genre: string) => genre !== "Hentai"); // Yes.
+
+    return item;
+  }
+
 
   return {
-    manga: item.Page.media,
-    genres: item.GenreCollection.filter((genre: string) => genre !== "Hentai"), // Yes.
+    promise: promise(),
     filters: { search, genre, sortBy },
   };
 };
