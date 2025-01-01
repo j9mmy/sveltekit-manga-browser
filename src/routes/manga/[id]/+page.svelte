@@ -8,6 +8,7 @@
     StatusButtonProps,
     MangaListEntry,
   } from "$lib/types/manga_list_entry";
+  import { LoaderCircle } from "lucide-svelte";
 
   let { data }: { data: PageData } = $props();
   let listEntry: MangaListEntry = $state({
@@ -16,7 +17,6 @@
     score: data.userManga.score ?? null,
   });
   let loading = $state(false);
-  const manga = data.manga;
 
   const statusButtonProps: StatusButtonProps[] = [
     {
@@ -46,25 +46,34 @@
   ];
 </script>
 
-{#snippet statusButton(props: StatusButtonProps)}
-  <Button
-    disabled={loading ||
-      (manga.chapters == null && props.status == "completed")}
-    type="submit"
-    class="w-full"
-    variant={listEntry.status == props.status ? props.variant : "outline"}
-    size="sm"
-    onclick={() => {
-      listEntry.status == props.status
-        ? (listEntry.status = null)
-        : (listEntry.status = props.status);
-    }}
-  >
-    {listEntry.status != props.status ? props.text : props.alt_text}
-  </Button>
-{/snippet}
+{#await data.promise}
+  <div class="grid gap-4">
+    <div
+      class="bg-primary bg-opacity-25 animate-pulse rounded-lg w-full h-52"
+    ></div>
+    <LoaderCircle
+      class="text-muted-foreground place-self-center animate-spin"
+    />
+  </div>
+{:then manga}
+  {#snippet statusButton(props: StatusButtonProps)}
+    <Button
+      disabled={loading ||
+        (manga.chapters == null && props.status == "completed")}
+      type="submit"
+      class="w-full"
+      variant={listEntry.status == props.status ? props.variant : "outline"}
+      size="sm"
+      onclick={() => {
+        listEntry.status == props.status
+          ? (listEntry.status = null)
+          : (listEntry.status = props.status);
+      }}
+    >
+      {listEntry.status != props.status ? props.text : props.alt_text}
+    </Button>
+  {/snippet}
 
-{#if manga}
   <div class="flex relative rounded-lg max-h-52">
     {#if manga.bannerImage}
       <img
@@ -182,4 +191,4 @@
       </div>
     {/if}
   </div>
-{/if}
+{/await}
