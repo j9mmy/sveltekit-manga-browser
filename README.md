@@ -1,6 +1,12 @@
 # SvelteKit Manga Browser
-<div>
-    <img src="./docs/muriel.gif" alt="showcase">
+<div align="center">
+    <div>
+        <img src="./docs/muriel.gif" alt="showcase">
+    </div>
+    <details>
+        <summary><b>Themes preview</b></summary>
+        <img src="./docs/themes.png" alt="theme showcase">
+    </details>
 </div>
 
 > [!WARNING]  
