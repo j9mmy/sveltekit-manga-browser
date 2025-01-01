@@ -1,85 +1,53 @@
-import type { PageLoad } from "./$types";
 import { dev } from "$app/environment";
 import { mockMangaData } from "$lib/mock/manga";
-import type { Title, CoverImage } from "$lib/types/manga";
+import type { PageMedia } from "$lib/types/manga";
+import type { PageLoad } from "./$types";
 
-type Media = {
-  title: Title;
-  coverImage: CoverImage;
-  id: number;
-  chapters: number;
-};
+// prettier-ignore
+export const load: PageLoad = async ({ url, fetch }) => {
+  const search = url.searchParams.get("title") || "";
+  const genre = url.searchParams.get("genre") || "All";
+  const sortBy = url.searchParams.get("sortBy") || "Popularity";
 
-type Page = {
-  media: Media[];
-};
-
-type ApiResponse = {
-  data: {
-    GenreCollection: string[];
-    Page: Page;
-  };
-};
-
-export const load: PageLoad = async ({ fetch, url: ddd }) => {
   const query = `
-  query Query($genre: String, $type: MediaType, $sort: [MediaSort]) {
-    GenreCollection
-    Page {
-      media(genre: $genre, type: $type, sort: $sort) {
-        title {
-          english
-          native
-          romaji
+    query ($search: String, $genre: String, $sort: [MediaSort], $type: MediaType, $isAdult: Boolean) {
+      GenreCollection
+      Page {
+        media(search: $search, genre: $genre, sort: $sort, type: $type, isAdult: $isAdult) {
+          title {
+            english
+            native
+            romaji
+          }
+          coverImage {
+            large
+          }
+          id
         }
       }
     }
-  }
   `;
 
   const variables = {
-    genre: null,
+    search: search || null,
+    genre: genre != "All" ? genre : null,
     sort: "POPULARITY_DESC",
-    type: "ANIME",
+    type: "MANGA",
+    isAdult: false,
   };
 
-  const url = "https://graphql.anilist.co",
-    options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        query: query,
-        variables: variables,
-      }),
-    };
+  const res = await fetch("https://graphql.anilist.co", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, variables }),
+  });
+  console.log("X-RateLimit-Remaining: ", Number(res.headers.get("x-ratelimit-remaining")) - 60);
 
-  const fetchManga = async () => {
-    if (dev) {
-      // await new Promise((resolve) => setTimeout(resolve, 2000));
-      const item = mockMangaData as ApiResponse;
-      console.log("Fetched mock data for multiple manga");
-
-      return {
-        genres: item.data.GenreCollection.filter((genre) => genre !== "Hentai"),
-        media: item.data.Page.media,
-      };
-    }
-
-    const res = await fetch(url, options);
-    if (!res.ok) throw new Error("Failed to fetch data from AniList");
-
-    const item = (await res.json()) as ApiResponse;
-
-    return {
-      genres: item.data.GenreCollection,
-      media: item.data.Page.media,
-    };
-  };
+  const item = (await res.json()) as PageMedia;
 
   return {
-    mangaPromise: fetchManga(),
+    manga: item.data.Page.media,
+    genres: item.data.GenreCollection.filter((genre: string) => genre !== "Hentai"), // Yes.
+    filters: { search, genre, sortBy },
   };
 };

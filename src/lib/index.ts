@@ -17,6 +17,7 @@ async function main() {
   await db.insert(users).values(fakeUser);
   console.log(`Created ${fakeUser.length} fake user(s)!`);
 
+  /*
   const fakeUserManga = {
     userId: 1,
     mangaId: 108556, // 108556 is the id of the manga "SPY x FAMILY"
@@ -32,6 +33,7 @@ async function main() {
 
   const userMangaRecords = await db.select().from(users_manga);
   console.log("User manga records in the database: ", userMangaRecords);
+  */
 }
 
 main().catch(console.error);

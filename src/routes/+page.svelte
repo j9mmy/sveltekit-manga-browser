@@ -43,4 +43,7 @@
     as a user with the ID of 1. Any manga you add to your list will be
     associated with this user and will persist until the database is reset.
   </p>
+  <strong>
+    In short: seed the database, and try browsing slowly to avoid rate limiting.
+  </strong>
 </div>

@@ -1,0 +1,1 @@
+ALTER TABLE `user_manga` ADD `title` text NOT NULL;

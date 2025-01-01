@@ -1,88 +1,133 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
   import { Button } from "$lib/components/ui/button/index.ts";
   import { Input } from "$lib/components/ui/input/index.ts";
   import { Label } from "$lib/components/ui/label/index.ts";
   import * as Select from "$lib/components/ui/select/index.ts";
+  import type { PageData } from "./$types";
+  import { queryParameters } from "sveltekit-search-params";
 
   let { data }: { data: PageData } = $props();
-  let search = $state("");
-  let genre = $state("All");
-  let sortBy = $state("Popularity");
+  let search = $state(data.filters.search);
+  let genre = $state(data.filters.genre);
+  let sortBy = $state(data.filters.sortBy);
+  let loading = $state(false);
+
+  const params = queryParameters({
+    title: true,
+    genre: true,
+    sortBy: true,
+  });
+
+  async function handleSubmit() {
+    loading = true;
+
+    params.title = search;
+    params.genre = genre;
+    params.sortBy = sortBy;
+
+    loading = false;
+  }
+
+  function resetFilters() {
+    search = "";
+    genre = "All";
+    sortBy = "Popularity";
+
+    handleSubmit();
+  }
 </script>
 
 <div class="grid gap-4">
   <h1 class="mb-4">Browse manga</h1>
-  <div class="grid gap-5 bg-background rounded">
+  <form
+    class="grid gap-5 bg-background rounded"
+    onsubmit={(e) => {
+      e.preventDefault();
+      handleSubmit();
+    }}
+  >
     <div class="grid gap-3">
-      <Label for="search">Title</Label>
-      <div class="flex gap-2">
-        <Input type="text" placeholder="Title" bind:value={search} />
-      </div>
+      <Label for="search" class="flex items-start justify-between">
+        Title
+        <Button
+          disabled={loading}
+          type="button"
+          variant="link"
+          class="h-fit p-0 rounded-none"
+          onclick={resetFilters}
+        >
+          Reset filters
+        </Button>
+      </Label>
+      <Input type="text" name="title" placeholder="Title" bind:value={search} />
     </div>
     <div class="grid grid-cols-2 gap-2">
-      {#await data.mangaPromise}
-        <div class="grid gap-3">
-          <Label>Genre</Label>
-          <div class="bg-gray-200 rounded animate-pulse h-10"></div>
-        </div>
-        <div class="grid gap-3">
-          <Label>Sort by</Label>
-          <div class="bg-gray-200 rounded animate-pulse h-10"></div>
-        </div>
-      {:then mangaData}
-        <Label for="genre" class="grid gap-3">
-          Genre
-          <Select.Root type="single" bind:value={genre}>
-            <Select.Trigger id="genre">
-              {genre}
-            </Select.Trigger>
-            <Select.Content class="p-2 rounded border">
-              <Select.Item value="All" label="All">All</Select.Item>
-              {#each mangaData.genres as genre}
-                <Select.Item value={genre} label={genre}>{genre}</Select.Item>
-              {/each}
-            </Select.Content>
-          </Select.Root>
-        </Label>
-        <Label for="sortBy" class="grid gap-3">
-          Sort by
-          <Select.Root type="single" bind:value={sortBy}>
-            <Select.Trigger id="sortBy">
-              {sortBy}
-            </Select.Trigger>
-            <Select.Content class="p-2 rounded border">
-              <Select.Item value="Popularity" label="Popularity">
-                Popularity
-              </Select.Item>
-            </Select.Content>
-          </Select.Root>
-        </Label>
-      {/await}
+      <Label for="genre" class="grid gap-3">
+        Genre
+        <Select.Root
+          type="single"
+          name="genre"
+          bind:value={genre}
+          allowDeselect={false}
+        >
+          <Select.Trigger>
+            {genre}
+          </Select.Trigger>
+          <Select.Content class="p-2 rounded border">
+            <Select.Item value="All" label="All">All</Select.Item>
+            {#each data.genres as g}
+              <Select.Item value={g} label={g}>{g}</Select.Item>
+            {/each}
+          </Select.Content>
+        </Select.Root>
+      </Label>
+      <Label for="sortBy" class="grid gap-3">
+        Sort by
+        <Select.Root
+          type="single"
+          name="sortBy"
+          bind:value={sortBy}
+          allowDeselect={false}
+        >
+          <Select.Trigger>
+            {sortBy}
+          </Select.Trigger>
+          <Select.Content class="p-2 rounded border">
+            <Select.Item value="Popularity" label="Popularity">
+              Popularity
+            </Select.Item>
+          </Select.Content>
+        </Select.Root>
+      </Label>
     </div>
-    <Button>Search</Button>
-  </div>
+    <Button disabled={loading} type="submit">Search</Button>
+  </form>
 
   <hr />
 
-  {#await data.mangaPromise}
-    <div class="grid grid-cols-4 gap-2">
-      {#each Array(12) as _}
-        <div class="aspect-[2/3] bg-gray-200 rounded animate-pulse"></div>
-      {/each}
+  {#if !data.manga.length}
+    <div class="flex justify-center text-muted-foreground text-sm">
+      <p>No results found</p>
     </div>
-  {:then mangaData}
-    <div class="grid grid-cols-4 gap-2">
-      {#each mangaData.media as manga}
+  {:else}
+    <div class="grid grid-cols-5 gap-2">
+      {#if loading}
+        {#each Array(12)}
+          <div
+            class="animate-pulse bg-primary bg-opacity-25 rounded aspect-[2/3]"
+          ></div>
+        {/each}
+      {/if}
+      {#each data.manga as manga}
         <div
           class="flex justify-center relative text-transparent font-bold hover:shadow focus:shadow"
         >
           <img
             src={manga.coverImage.large}
-            loading="lazy"
             decoding="async"
+            loading="lazy"
             alt={manga.title.romaji}
-            class="rounded object-cover"
+            class="rounded object-cover aspect-[2/3] {loading ? 'hidden' : ''}"
           />
           <a
             href={`/manga/${manga.id}`}
@@ -93,5 +138,5 @@
         </div>
       {/each}
     </div>
-  {/await}
+  {/if}
 </div>

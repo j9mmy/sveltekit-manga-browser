@@ -37,3 +37,21 @@ export type Media = {
     nodes: Character[];
   };
 };
+
+export type PartialMedia = {
+  title: Title;
+  coverImage: CoverImage;
+  id: number;
+  chapters: number;
+};
+
+export type Page = {
+  media: PartialMedia[];
+};
+
+export type PageMedia = {
+  data: {
+    GenreCollection: string[];
+    Page: Page;
+  };
+};
