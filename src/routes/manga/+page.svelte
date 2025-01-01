@@ -9,7 +9,7 @@
   import type { PageData } from "./$types";
 
   let { data: pageData }: { data: PageData } = $props();
-  let data = $state(pageData.promise);
+  let promise = $state(pageData.promise);
   let search = $state(pageData.filters.search);
   let genre = $state(pageData.filters.genre);
   let sortBy = $state(pageData.filters.sortBy);
@@ -18,7 +18,7 @@
   async function handleSearch() {
     loading = true;
 
-    data = searchMangaAndGenres({ search, genre, sortBy });
+    promise = searchMangaAndGenres({ search, genre, sortBy });
 
     page.url.searchParams.set("title", search);
     page.url.searchParams.set("genre", genre);
@@ -44,7 +44,7 @@
 
 <div class="grid gap-4">
   <h1 class="mb-4 mt-4 leading-none">Browse manga</h1>
-  {#await data}
+  {#await promise}
     <!-- prettier-ignore -->
     <div class="grid gap-5 bg-background">
       <Label for="search" class="grid gap-3">
