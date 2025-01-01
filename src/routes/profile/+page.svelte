@@ -5,6 +5,10 @@
   let { data }: { data: PageData } = $props();
 </script>
 
+<svelte:head>
+  <title>Profile</title>
+</svelte:head>
+
 <div class="grid gap-4 text-sm">
   <div class="flex justify-between items-end gap-4 mt-4 mb-2">
     <h1 class="leading-none">Profile</h1>

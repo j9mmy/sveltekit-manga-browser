@@ -46,6 +46,10 @@
   ];
 </script>
 
+<svelte:head>
+  <title>Viewing A Manga</title>
+</svelte:head>
+
 {#await data.promise}
   <div class="grid gap-4">
     <div

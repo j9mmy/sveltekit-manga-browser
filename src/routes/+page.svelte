@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>Home</title>
+</svelte:head>
+
 <div class="grid gap-3 text-sm">
   <div
     class="grid gap-2 bg-destructive text-neutral-50 p-4 mt-2 mb-4 rounded-lg"

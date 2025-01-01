@@ -22,6 +22,7 @@
 </nav>
 
 <ModeWatcher />
-<div class="mx-auto mb-96 p-4 max-w-3xl">
+
+<div class="mx-auto min-h-screen p-4 max-w-3xl">
   {@render children()}
 </div>
