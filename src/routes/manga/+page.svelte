@@ -49,7 +49,7 @@
     <div class="grid gap-5 bg-background">
       <Label for="search" class="grid gap-3">
         Title
-        <Input placeholder="Title" disabled>{search}</Input>
+        <Input placeholder="Title" disabled value={search}>{search}</Input>
       </Label>
       <div class="grid grid-cols-2 gap-2">
         <Label for="genre" class="grid gap-3">
