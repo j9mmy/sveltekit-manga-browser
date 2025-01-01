@@ -39,7 +39,7 @@
 </script>
 
 <div class="grid gap-4">
-  <h1 class="mb-4">Browse manga</h1>
+  <h1 class="mb-4 mt-4 leading-none">Browse manga</h1>
   <form
     class="grid gap-5 bg-background rounded"
     onsubmit={(e) => {

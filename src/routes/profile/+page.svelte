@@ -6,8 +6,8 @@
 </script>
 
 <div class="grid gap-4 text-sm">
-  <div class="flex justify-between items-end gap-4 mb-2">
-    <h1 class=" leading-none">Profile</h1>
+  <div class="flex justify-between items-end gap-4 mt-4 mb-2">
+    <h1 class="leading-none">Profile</h1>
     <div class="flex gap-4 text-end">
       <strong>{data.user.name}</strong>
       —

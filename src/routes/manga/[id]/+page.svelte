@@ -162,13 +162,14 @@
 
       <div class="grid gap-2">
         <h3>Characters</h3>
-        <div class="flex flex-nowrap gap-2 pb-2 h-40 overflow-x-scroll">
+        <div class="flex gap-2 pb-2 overflow-x-scroll">
           {#each manga.characters.nodes as character}
             <div class="flex flex-shrink-0 relative">
               <img
                 src={character.image.medium}
                 alt={character.name.full}
-                class="rounded aspect-auto"
+                class="rounded"
+                width="80"
               />
               <span
                 class="absolute flex justify-center items-center text-center select-none p-2 w-full h-full rounded font-bold text-transparent bg-black bg-opacity-0 hover:text-neutral-50 hover:backdrop-blur hover:bg-opacity-10 transition"
