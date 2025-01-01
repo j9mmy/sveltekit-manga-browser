@@ -50,8 +50,6 @@ export type Page = {
 };
 
 export type PageMedia = {
-  data: {
-    GenreCollection: string[];
-    Page: Page;
-  };
+  GenreCollection: string[];
+  Page: Page;
 };

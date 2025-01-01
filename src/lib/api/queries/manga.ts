@@ -49,3 +49,22 @@ export const SEARCH_MANGA_SINGLE_QUERY = `
     }
   }
 `;
+
+export const SEARCH_MANGA_AND_GENRES_QUERY = `
+  query ($search: String, $genre: String, $sort: [MediaSort], $type: MediaType, $isAdult: Boolean) {
+    GenreCollection
+    Page {
+      media(search: $search, genre: $genre, sort: $sort, type: $type, isAdult: $isAdult) {
+        title {
+          english
+          native
+          romaji
+        }
+        coverImage {
+          large
+        }
+        id
+      }
+    }
+  }
+`;
