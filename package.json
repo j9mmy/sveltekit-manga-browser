@@ -21,11 +21,12 @@
     "@sveltejs/kit": "^2.15.1",
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "autoprefixer": "^10.4.20",
-    "bits-ui": "^1.0.0-next.74",
+    "bits-ui": "^1.0.0-next.76",
     "clsx": "^2.1.1",
     "drizzle-kit": "0.30.1",
     "svelte": "^5.16.0",
     "svelte-check": "^4.1.1",
+    "sveltekit-search-params": "^4.0.0-next.0",
     "tailwind-merge": "^2.6.0",
     "tailwind-variants": "^0.3.0",
     "tailwindcss": "^3.4.17",
@@ -40,6 +41,6 @@
     "drizzle-orm": "^0.38.3",
     "lucide-svelte": "^0.469.0",
     "mode-watcher": "^0.5.0",
-    "svelte-purify": "^2.0.0"
+    "svelte-purify": "^2.0.1"
   }
 }
