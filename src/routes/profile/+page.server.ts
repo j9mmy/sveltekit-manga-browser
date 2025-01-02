@@ -2,7 +2,7 @@ import { db } from "$lib/server/db";
 import { users, users_manga } from "$lib/server/db/schema";
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export const load = (async () => {
   const promise = async () => {
@@ -10,11 +10,25 @@ export const load = (async () => {
     if (!user) error(404, { message: "User was not found" });
     console.log(user);
 
-    const listEntries = await db
+    let listEntries = await db
       .select()
       .from(users_manga)
-      .where(eq(users_manga.userId, user.id));
+      .where(eq(users_manga.userId, user.id))
+      .orderBy(desc(users_manga.score));
     if (!listEntries) error(404, { message: "List entries were not found" });
+
+    listEntries.sort((a, b) => {
+      const order = {
+        planning: 1,
+        reading: 2,
+        completed: 3,
+        dropped: 4,
+        null: 5,
+      };
+
+      return order[a.status ?? "null"] - order[b.status ?? "null"];
+    });
+
     console.log(listEntries);
 
     return {
